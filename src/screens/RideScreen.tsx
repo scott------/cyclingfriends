@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Button, Alert } from 'react-native';
 import MapView, { Polyline, Marker, LatLng } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -6,6 +6,7 @@ import { useRide } from '../state/RideContext';
 
 export default function RideScreen() {
   const { isRecording, points, distanceKm, startRide, stopRide, addPoint } = useRide();
+  const subRef = useRef<Location.LocationSubscription | null>(null);
 
   const requestPerms = useCallback(async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -20,7 +21,7 @@ export default function RideScreen() {
     if (!(await requestPerms())) return;
     await startRide();
     // start a foreground location watcher
-    await Location.watchPositionAsync(
+    subRef.current = await Location.watchPositionAsync(
       { accuracy: Location.Accuracy.High, distanceInterval: 5 },
       (loc) => {
         addPoint({
@@ -34,7 +35,20 @@ export default function RideScreen() {
 
   const onStop = useCallback(async () => {
     await stopRide();
+    if (subRef.current) {
+      subRef.current.remove();
+      subRef.current = null;
+    }
   }, [stopRide]);
+
+  useEffect(() => {
+    return () => {
+      if (subRef.current) {
+        subRef.current.remove();
+        subRef.current = null;
+      }
+    };
+  }, []);
 
   const start = points[0];
   const region = start
