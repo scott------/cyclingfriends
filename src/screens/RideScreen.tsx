@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Button, Alert } from 'react-native';
-import MapView, { Polyline, Marker, LatLng } from 'react-native-maps';
+import MapView, { Polyline, Marker, LatLng, UrlTile } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useRide } from '../state/RideContext';
 
@@ -57,7 +57,20 @@ export default function RideScreen() {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={region}>
+      <MapView
+        style={styles.map}
+        initialRegion={region}
+        mapType="none"
+        showsUserLocation
+        showsMyLocationButton
+      >
+        {/* Bike-friendly base map */}
+        <UrlTile
+          urlTemplate="https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"
+          maximumZ={20}
+          tileSize={256}
+          zIndex={-1}
+        />
         {points.length > 0 && (
           <>
             <Polyline

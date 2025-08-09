@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import MapView, { Polyline } from 'react-native-maps';
+import MapView, { Polyline, UrlTile } from 'react-native-maps';
 import * as SQLite from 'expo-sqlite';
 
 export default function RideDetailScreen({ route }: any) {
@@ -18,7 +18,13 @@ export default function RideDetailScreen({ route }: any) {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={{ ...start, latitudeDelta: 0.05, longitudeDelta: 0.05 }}>
+      <MapView style={styles.map} initialRegion={{ ...start, latitudeDelta: 0.05, longitudeDelta: 0.05 }} mapType="none">
+        <UrlTile
+          urlTemplate="https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"
+          maximumZ={20}
+          tileSize={256}
+          zIndex={-1}
+        />
         {points.length > 1 && <Polyline coordinates={points} strokeColor="#1e90ff" strokeWidth={4} />}
       </MapView>
     </View>
